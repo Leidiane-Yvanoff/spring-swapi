@@ -1,10 +1,10 @@
 package com.wildcodeschool.swapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wildcodeschool.swapi.model.People;
 import com.wildcodeschool.swapi.model.Planet;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +25,7 @@ public class SwapiController {
     @GetMapping("/planet")
     public String planet(Model model, @RequestParam Long id) {
     	 WebClient webClient = WebClient.create(SWAPI_URL);
+    	 
          Mono<String> call = webClient.get()
                  .uri(uriBuilder -> uriBuilder
                          .path("/planets/{id}/")
@@ -33,15 +34,16 @@ public class SwapiController {
                  .bodyToMono(String.class);
 
          String response = call.block();
-
+         
          ObjectMapper objectMapper = new ObjectMapper();
+         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
          Planet planetObject = null;
          try {
              planetObject = objectMapper.readValue(response, Planet.class);
          } catch (JsonProcessingException e) {
              e.printStackTrace();
          }
-    	
+         
      
        // TODO : call the API and retrieve the planet
 
